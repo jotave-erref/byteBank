@@ -7,6 +7,7 @@ import com.jvrskt.bytebank.ByteBank.domain.conta.DadosAberturaConta;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 @SpringBootApplication
@@ -19,7 +20,7 @@ public class ByteBankApplication {
 		SpringApplication.run(ByteBankApplication.class, args);
 
 		int opcao = exibirMenu();
-		while (opcao != 8) {
+		while (opcao != 9) {
 			try {
 				switch (opcao) {
 					case 1:
@@ -41,7 +42,10 @@ public class ByteBankApplication {
 						realizarDeposito();
 						break;
 					case 7:
-						listarContaPorNumero();
+						transferencia();
+						break;
+					case 8:
+						contaInativa();
 						break;
 				}
 			} catch (RegraDeNegocioException e) {
@@ -64,8 +68,9 @@ public class ByteBankApplication {
                 4 - Consultar saldo de uma conta
                 5 - Realizar saque em uma conta
                 6 - Realizar depósito em uma conta
-                7 - Buscar Conta
-                8 - Sair
+                7 - Transferencia
+                8 - Listar contas inativas
+                9 - Sair
                 """);
 			return sc.nextInt();
 		}
@@ -93,7 +98,7 @@ public class ByteBankApplication {
 		private static void encerrarConta(){
 			System.out.println("Informe o numero da conta que deseja encerrar");
 			var numero = sc.nextInt();
-			service.encerrarConta(numero);
+			service.exclusaoLogica(numero);
 			System.out.println("Conta encerrada com sucesso!");
 			System.out.println("Precione qualquer tecla e de ENTER para voltar ao menu principal");
 			sc.next();
@@ -132,12 +137,24 @@ public class ByteBankApplication {
 			sc.next();
 		}
 
-		private static void listarContaPorNumero(){
-			System.out.println("Informe o numero da conta que deseja procurar:");
-			var numeroConta = sc.nextInt();
-			System.out.println("CLIENTE:");
-			service.buscarContaPorNumero(numeroConta);
+		private static void transferencia(){
+			System.out.println("Informe o numero da sua conta");
+			var numeroConta1 = sc.nextInt();
+			var conta1 = service.buscarContaPorNumero(numeroConta1);
+			System.out.println("Informe o numero da conta que deseja fazer a transferência");
+			var numeroConta2 = sc.nextInt();
+			System.out.println("Informe o valor que deseja transferir");
+			BigDecimal valor = sc.nextBigDecimal();
+			var conta2 = service.buscarContaPorNumero(numeroConta2);
+			service.tranferencia(conta1, conta2, valor);
 			System.out.println("\nPrecione qualquer tecla e de ENTER para voltar ao menu principal");
+			sc.next();
+		}
+
+		private static void contaInativa(){
+			System.out.println("Contas inativas:");
+			service.contasInativadas();
+			System.out.println("Pressione qualquer tecla e ENTER para voltar ao menu");
 			sc.next();
 		}
 
